@@ -15,16 +15,37 @@ def get_job_by_id(job_id):
             return job
     return None
 
+def update_config(job_id, successful_numbers, failed_numbers):
+    with open('config.json', 'r') as file:
+        config = json.load(file)
 
-def send_bulk_sms(account_sid, auth_token, from_number, message, phone_numbers, timeout_seconds=2):
+    for job in config['jobs']:
+        if job['id'] == job_id:
+            job['successful_numbers'] = list(set(job.get('successful_numbers', []) + successful_numbers))
+            job['failed_numbers'] = list(set(failed_numbers))
+            break
+
+    with open('config.json', 'w') as file:
+        json.dump(config, file, indent=4)
+
+def send_bulk_sms(account_sid, auth_token, from_number, message, phone_numbers, job_id, timeout_seconds=2):
     client = Client(account_sid, auth_token)
+    successful_numbers = []
+    failed_numbers = []
+
     for num in phone_numbers:
         try:
             print(f"Sending to {num}")
             client.messages.create(to=num, from_=from_number, body=message)
-            time.sleep(timeout_seconds)  # Rate limiting
+            successful_numbers.append(num)
         except Exception as e:
             print(f"Failed to send SMS to {num}: {e}")
+            failed_numbers.append(num)
+        finally:
+            time.sleep(timeout_seconds)  # Rate limiting
+
+    # Update config with the results
+    update_config(job_id, successful_numbers, failed_numbers)
 
 def main(job_id):
     config = load_config()
@@ -55,16 +76,15 @@ def main(job_id):
 
     print(f"> Sending {len(numbers)} messages of {segments} segments each, at a cost of ${cost:.2f}.")
     
-    # des muaß nu weg afoch nur zum testi grod
     confirm = input("Send these messages? [Y/n] ").strip().lower()
     if confirm != 'y':
         print("Exiting without sending messages.")
         sys.exit(0)
 
     # Send the SMS messages
-    send_bulk_sms(sms_sender['account_sid'], sms_sender['auth_token'], sms_sender['from_number'], message, numbers)
+    send_bulk_sms(sms_sender['account_sid'], sms_sender['auth_token'], sms_sender['from_number'], message, numbers, job_id)
 
-    print("All SMS sent successfully.")
+    print("All SMS processing complete.")
 
 if __name__ == "__main__":
     job_id = 1  # You can change this to run different jobs
