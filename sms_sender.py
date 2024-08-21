@@ -15,6 +15,7 @@ def get_job_by_id(job_id):
             return job
     return None
 
+
 def send_bulk_sms(client, from_number, message, phone_numbers, timeout_seconds=2):
     for num in phone_numbers:
         try:

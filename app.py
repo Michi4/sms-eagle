@@ -574,7 +574,6 @@ def schedule_job(job_id):
                             'account_sid': store['sms_sender.account_sid'],
                             'auth_token': store['sms_sender.auth_token'],
                             'from_number': store['sms_sender.from_number'],
-
                             'sms_list': job['phone_numbers'],
                             'message': job['message'],
                         }
@@ -586,6 +585,7 @@ def schedule_job(job_id):
                         flash(f"Job[{job_id}] successfully scheduled!", 'success')
                         #logger.info(f"Job[{job_id}] successfully scheduled!")
                 except Exception as e:
+                    print(e)
                     flash(message=str(e), category='danger')
             break
 
