@@ -50,7 +50,7 @@
 </style>
 
 <div class="log-container">
-    <a href="{{ url_for('download_logs') }}" class="download-button">Download All Logs</a>
+    <a href="{{ url_for('download_logs') }}" class="download-button btn-primary">Download All Logs</a>
 
     {% for log in logs %}
         <div class="log-item {% if log.log_level == 'ERROR' %}error{% elif log.log_level == 'WARNING' %}warning{% elif log.log_level == 'DEBUG' %}debug{% else %}info{% endif %}">

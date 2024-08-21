@@ -4,5 +4,33 @@
     "auth_token": "sadfsadfsadfasfsafh_token",
     "from_number": "+123456789023423"
   },
-  "jobs": []
+  "jobs": [
+    {
+      "id": 1,
+      "job_uuid": "5047143c-6be2-46c2-8b19-6086d78936b2",
+      "name": "Hallo Welt",
+      "is_scheduled": false,
+      "is_finished": false,
+      "csv_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/2ade66a1-4c9e-4382-8e24-bee29c79fd01.csv",
+      "schedule_date": "08/23/2024 16:02:00",
+      "message_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/0ab5d913-bc22-49dc-9c44-d810344c1f43.txt",
+      "list": [
+        "348403284234",
+        "43214",
+        "214",
+        "24",
+        "234",
+        "21",
+        "42",
+        "34231421",
+        "4231",
+        "4",
+        "124",
+        "14",
+        "213"
+      ],
+      "successful_sms": [],
+      "failed_sms": []
+    }
+  ]
 }

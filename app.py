@@ -36,6 +36,8 @@ app = Flask(__name__)
 
 app.secret_key = 'dev'
 
+app.config['BOOTSTRAP_BOOTSWATCH_THEME'] = 'quartz'
+
 login_manager = LoginManager(app)
 
 bootstrap = Bootstrap5(app)
