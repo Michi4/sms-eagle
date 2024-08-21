@@ -1,19 +1,8 @@
 {
-    "sms_sender": {
-      "account_sid": "your_twilio_account_sid",
-      "auth_token": "your_twilio_auth_token",
-      "from_number": "+1234567890"
-    },
-    "jobs": [
-      {
-        "id": 1,
-        "job_uuid": "fc565db3-1082-4cd7-93e8-722e64ab81a8",
-        "name": "Bulk SMS Campaign",
-        "csv_path": "participants.csv",
-        "message_file": "message.txt",
-        "is_scheduled": true,
-        "is_finished": false
-      }
-    ]
-  }
-  
+  "sms_sender": {
+    "account_sid": "sdafsdaf",
+    "auth_token": "sadfsadfsadfasfsafh_token",
+    "from_number": "+123456789023423"
+  },
+  "jobs": []
+}

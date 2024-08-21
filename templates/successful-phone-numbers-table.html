@@ -3,18 +3,18 @@
 <div class="card mb-4">
     <div class="card-header">
         <h5 class="mb-0">
-            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#failedEmailsTable" aria-expanded="true" aria-controls="failedEmailsTable">
-                Failed Emails
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#successfulEmailsTable" aria-expanded="true" aria-controls="successfulEmailsTable">
+                Successful Phone-Numbers
             </button>
         </h5>
     </div>
 
-    <div id="failedEmailsTable" class="collapse show" aria-labelledby="headingOne">
+    <div id="successfulEmailsTable" class="collapse show" aria-labelledby="headingOne">
         <div class="card-body">
             {{
             render_table(
-                failed_emails_data,
-                titles=failed_emails_data.titles,
+                successful_phone_numbers_data,
+                titles=successful_phone_numbers_data.titles,
                 responsive=True,
                 responsive_class='table-responsive-sm'
             )

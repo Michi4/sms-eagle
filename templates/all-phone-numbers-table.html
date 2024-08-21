@@ -4,7 +4,7 @@
     <div class="card-header">
         <h5 class="mb-0">
             <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#emailsTable" aria-expanded="true" aria-controls="emailsTable">
-                All Emails
+                All Phone-Numbers
             </button>
         </h5>
     </div>
@@ -13,8 +13,8 @@
         <div class="card-body">
             {{
             render_table(
-                emails_data,
-                titles=emails_data.titles,
+                phone_numbers_data,
+                titles=phone_numbers_data.titles,
                 responsive=True,
                 responsive_class='table-responsive-sm'
             )

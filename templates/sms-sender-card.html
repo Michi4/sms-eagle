@@ -10,10 +10,9 @@
     <div id="userData" class="collapse show" aria-labelledby="headingOne">
       <div class="card-body">
         <ul class="list-group">
-            <li class="list-group-item"><strong>SMTP-Server: </strong> {{ email_sender.smtp_server }}</li>
-            <li class="list-group-item"><strong>SMTP-Port: </strong> {{ email_sender.smtp_port }}</li>
-            <li class="list-group-item"><strong>Sender-Email: </strong> {{ email_sender.sender_email }}</li>
-            <li class="list-group-item"><strong>Sender-Password: </strong> {{ email_sender.sender_password }}</li>
+            <li class="list-group-item"><strong>ACCOUNT-SID: </strong> {{ sms_sender.account_sid }}</li>
+            <li class="list-group-item"><strong>AUTH-TOKEN: </strong> {{ sms_sender.auth_token }}</li>
+            <li class="list-group-item"><strong>FROM-NUMBER: </strong> {{ sms_sender.from_number }}</li>
         </ul>
       </div>
     </div>
