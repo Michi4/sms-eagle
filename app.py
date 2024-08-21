@@ -46,7 +46,7 @@ csrf = CSRFProtect(app)
 #logging.getLogger('werkzeug').disabled = False
 
 ##logger = logging.get#logger(__name__)
-#logging.basicConfig(filename='mail-eagle.log', encoding='utf-8', level=logging.DEBUG)
+#logging.basicConfig(filename='sms-eagle.log', encoding='utf-8', level=logging.DEBUG)
 
 
 class TaskManager:
@@ -641,25 +641,25 @@ def abbestellen():
     return render_template('unsubscribe_form.html', form=form)
 
 
-@app.route('/abbestellen/<email>', methods=['GET'])
-def unsubscribe(email):
-    email = unquote(email)
-    email = email.strip()
-    email = email.lower()
+@app.route('/abbestellen/<phone_number>', methods=['GET'])
+def unsubscribe(phone_number):
+    phone_number = unquote(phone_number)
+    phone_number = phone_number.strip()
+    phone_number = phone_number.lower()
     unsubscribed = True
-    update_blacklist(email)
+    update_blacklist(phone_number)
 
     for job in store['jobs']:
-        if email in job['list']:
-            job['list'].remove(email)
+        if phone_number in job['list']:
+            job['list'].remove(phone_number)
             store['jobs'] = [j if j['id'] != job['id'] else job for j in store['jobs']]
             unsubscribed = True
 
     if unsubscribed:
         return render_template('unsubscribe.html',
-                               message=f"You have successfully unsubscribed {email} from the newsletter.")
+                               message=f"You have successfully unsubscribed {phone_number} from the newsletter.")
     else:
-        return render_template('unsubscribe.html', message="Email address not found.")
+        return render_template('unsubscribe.html', message="Phone-Number not found.")
 
 
 def parse_log_file(log_file):
@@ -708,14 +708,14 @@ def logging():
     if not current_user.is_authenticated:
         return redirect('/login')
     else:
-        logs = parse_log_file('mail-eagle.log')
+        logs = parse_log_file('sms-eagle.log')
         print(logs)
         return render_template('logging.html', logs=logs[-10:][::-1])
 
 
 @app.route('/download_logs')
 def download_logs():
-    log_file_path = 'mail-eagle.log'
+    log_file_path = 'sms-eagle.log'
 
     # Send the log file as an attachment
     return send_file(log_file_path, as_attachment=True)

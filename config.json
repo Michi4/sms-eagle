@@ -7,28 +7,14 @@
   "jobs": [
     {
       "id": 1,
-      "job_uuid": "5047143c-6be2-46c2-8b19-6086d78936b2",
-      "name": "Hallo Welt",
+      "job_uuid": "23d3cfbb-f725-458a-8e68-11556e60233d",
+      "name": "Test",
       "is_scheduled": false,
       "is_finished": false,
-      "csv_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/2ade66a1-4c9e-4382-8e24-bee29c79fd01.csv",
-      "schedule_date": "08/23/2024 16:02:00",
-      "message_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/0ab5d913-bc22-49dc-9c44-d810344c1f43.txt",
-      "list": [
-        "348403284234",
-        "43214",
-        "214",
-        "24",
-        "234",
-        "21",
-        "42",
-        "34231421",
-        "4231",
-        "4",
-        "124",
-        "14",
-        "213"
-      ],
+      "csv_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/6eb3f1c9-f74c-486f-8d48-4a5a2f1d5e42.csv",
+      "schedule_date": "08/21/2024 18:13:00",
+      "message_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/d072085b-5060-41c6-9f2d-d9e9f2086965.txt",
+      "list": [],
       "successful_sms": [],
       "failed_sms": []
     }
