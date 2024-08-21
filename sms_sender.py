@@ -16,7 +16,8 @@ def get_job_by_id(job_id):
     return None
 
 
-def send_bulk_sms(client, from_number, message, phone_numbers, timeout_seconds=2):
+def send_bulk_sms(account_sid, auth_token, from_number, message, phone_numbers, timeout_seconds=2):
+    client = Client(account_sid, auth_token)
     for num in phone_numbers:
         try:
             print(f"Sending to {num}")
@@ -60,11 +61,8 @@ def main(job_id):
         print("Exiting without sending messages.")
         sys.exit(0)
 
-    # Initialize Twilio client
-    client = Client(sms_sender['account_sid'], sms_sender['auth_token'])
-
     # Send the SMS messages
-    send_bulk_sms(client, sms_sender['from_number'], message, numbers)
+    send_bulk_sms(sms_sender['account_sid'], sms_sender['auth_token'], sms_sender['from_number'], message, numbers)
 
     print("All SMS sent successfully.")
 
