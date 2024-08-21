@@ -4,9 +4,11 @@ import json
 import sys
 from twilio.rest import Client
 
+
 def load_config():
     with open('config.json', 'r') as file:
         return json.load(file)
+
 
 def get_job_by_id(job_id):
     config = load_config()
@@ -14,6 +16,7 @@ def get_job_by_id(job_id):
         if job['id'] == job_id:
             return job
     return None
+
 
 def update_config(job_id, successful_numbers, failed_numbers):
     with open('config.json', 'r') as file:
@@ -27,6 +30,7 @@ def update_config(job_id, successful_numbers, failed_numbers):
 
     with open('config.json', 'w') as file:
         json.dump(config, file, indent=4)
+
 
 def send_bulk_sms(account_sid, auth_token, from_number, message, phone_numbers, job_id, timeout_seconds=2):
     client = Client(account_sid, auth_token)
@@ -46,6 +50,7 @@ def send_bulk_sms(account_sid, auth_token, from_number, message, phone_numbers, 
 
     # Update config with the results
     update_config(job_id, successful_numbers, failed_numbers)
+
 
 def main(job_id):
     config = load_config()

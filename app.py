@@ -361,6 +361,22 @@ def parse_csv_column(csv_file_path, column_name):
         return []
 
 
+def parse_message(message_file_path):
+    content_all = ""
+    try:
+        with open(message_file_path, 'r') as message_file:
+            while True:
+                content = message_file.readline()
+                if not content:
+                    break
+                content_all += content
+            print(content_all)
+            return content_all
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
+
 class TableData:
     def __init__(self, data, titles):
         self.data = data
@@ -407,6 +423,7 @@ def jobs():
                 "schedule_date": form.date.data.strftime('%m/%d/%Y %H:%M:%S'),
                 "message_path": content_file_path,
                 "list": remove_duplicates(subtract_lists(parse_csv_column(csv_file_path, form.column.data), get_blacklist())),
+                "message": parse_message(content_file_path),
                 "successful_sms": [],
                 "failed_sms": []
             }
@@ -574,7 +591,8 @@ def schedule_job(job_id):
                             'account_sid': store['sms_sender.account_sid'],
                             'auth_token': store['sms_sender.auth_token'],
                             'from_number': store['sms_sender.from_number'],
-                            'sms_list': job['phone_numbers'],
+                            'phone_numbers': job['list'],
+                            'job_id': job['id'],
                             'message': job['message'],
                         }
 
