@@ -1,0 +1,701 @@
+
+C:\Users\Michi\Desktop\hider\__Projekte\sms-eagle\templates>cat *.html
+
+all-emails-table.html
+
+
+{% from 'bootstrap5/table.html' import render_table %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#emailsTable" aria-expanded="true" aria-controls="emailsTable">
+                All Emails
+            </button>
+        </h5>
+    </div>
+
+    <div id="emailsTable" class="collapse show" aria-labelledby="headingOne">
+        <div class="card-body">
+            {{
+            render_table(
+                emails_data,
+                titles=emails_data.titles,
+                responsive=True,
+                responsive_class='table-responsive-sm'
+            )
+            }}
+        </div>
+    </div>
+</div>
+
+base.html
+
+
+{% from 'bootstrap5/nav.html' import render_nav_item %}
+{% from 'bootstrap5/utils.html' import render_messages %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>MailEagle Newsletter</title>
+    <link rel="icon" href="{{ url_for('static', filename='./images/maileagle.ico') }}">
+    {{ bootstrap.load_css() }}
+    <style>
+        pre {
+            background: #ddd;
+            padding: 10px;
+        }
+        h2 {
+            margin-top: 20px;
+        }
+        footer {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+          <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+                {{ render_nav_item('index', 'Home') }}
+                {{ render_nav_item('configure', 'Sender Email') }}
+                {{ render_nav_item('jobs', 'Jobs') }}
+                {{ render_nav_item('blacklist', 'Blacklist') }}
+                {{ render_nav_item('logging', 'Logging') }}
+
+            </ul>
+            <form action="{{ url_for('logout') }}" method="GET" class="d-flex">
+                <button type="submit" class="btn btn-primary">Logout</button>
+            </form>
+        </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {{ render_messages(container=False, dismissible=True, dismiss_animate=True) }}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center">
+        {% block footer %}
+            <small> &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://webhoch.com/">Webagentur Hochmeir</a>
+            </small>
+        {% endblock %}
+    </footer>
+
+    {{ bootstrap.load_js() }}
+</body>
+</html>
+blacklist-csv-form.html
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#blacklistListForm" aria-expanded="true" aria-controls="blacklistListForm">
+                Blacklist CSV Form
+            </button>
+        </h5>
+    </div>
+    <div id="blacklistListForm" class="collapse show" aria-labelledby="headingOne">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" action="/blacklist/csv-upload">
+                {{ render_form(csv_form) }}
+            </form>
+        </div>
+    </div>
+</div>
+
+blacklist-entry-form.html
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#blacklistEntryForm" aria-expanded="true" aria-controls="blacklistEntryForm">
+                Blacklist Entry Form
+            </button>
+        </h5>
+    </div>
+    <div id="blacklistEntryForm" class="collapse show" aria-labelledby="headingOne">
+        <div class="card-body">
+            <form method="POST" action="/blacklist/text-entry">
+                {{ render_form(entry_form) }}
+            </form>
+        </div>
+    </div>
+</div>
+
+blacklist-table.html
+
+
+{% from 'bootstrap5/table.html' import render_table %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#blacklistTable" aria-expanded="true" aria-controls="blacklistTable">
+                Blacklist Table
+            </button>
+        </h5>
+    </div>
+
+    <div id="blacklistTable" class="collapse show" aria-labelledby="headingOne">
+        <div class="card-body">
+            {{
+            render_table(
+                blacklist_data,
+                titles=blacklist_data.titles,
+                responsive=True,
+                responsive_class='table-responsive-sm'
+            )
+            }}
+        </div>
+    </div>
+</div>
+
+blacklist.html
+
+
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Global Blacklist</h1>
+<p>Get a quick overview over everyone that has unsubscribed the newsletter.</p>
+
+{% include 'blacklist-csv-form.html' %}
+{% include 'blacklist-entry-form.html' %}
+
+{% include 'blacklist-table.html' %}
+
+
+{% endblock %}
+configure.html
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Configure Sender-Email</h1>
+<p>Configure and edit your email which will be used to send out the newsletter.</p>
+
+
+{% include 'email-sender-form.html' %}
+{% include 'email-sender-card.html' %}
+
+
+{% endblock %}
+email-sender-card.html
+
+
+<div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#userData" aria-expanded="true" aria-controls="userData">
+          Email Sender Configuration
+        </button>
+      </h5>
+    </div>
+
+    <div id="userData" class="collapse show" aria-labelledby="headingOne">
+      <div class="card-body">
+        <ul class="list-group">
+            <li class="list-group-item"><strong>SMTP-Server: </strong> {{ email_sender.smtp_server }}</li>
+            <li class="list-group-item"><strong>SMTP-Port: </strong> {{ email_sender.smtp_port }}</li>
+            <li class="list-group-item"><strong>Sender-Email: </strong> {{ email_sender.sender_email }}</li>
+            <li class="list-group-item"><strong>Sender-Password: </strong> {{ email_sender.sender_password }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+email-sender-form.html
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+<div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#emailSender" aria-expanded="true" aria-controls="emailSender">
+          Email Sender Configuration Form
+        </button>
+      </h5>
+    </div>
+
+    <div id="emailSender" class="collapse show" aria-labelledby="headingOne">
+      <div class="card-body">
+            <form method="POST">
+                {{ render_form(form) }}
+            </form>
+      </div>
+    </div>
+  </div>
+
+failed-email-table.html
+
+
+{% from 'bootstrap5/table.html' import render_table %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#failedEmailsTable" aria-expanded="true" aria-controls="failedEmailsTable">
+                Failed Emails
+            </button>
+        </h5>
+    </div>
+
+    <div id="failedEmailsTable" class="collapse show" aria-labelledby="headingOne">
+        <div class="card-body">
+            {{
+            render_table(
+                failed_emails_data,
+                titles=failed_emails_data.titles,
+                responsive=True,
+                responsive_class='table-responsive-sm'
+            )
+            }}
+        </div>
+    </div>
+</div>
+
+index.html
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row align-items-center">
+        <div class="col-md-2">
+            <img src="{{ url_for('static', filename='images/mail-eagle-logo.svg') }}" alt="Mail Eagle Logo" class="img-fluid">
+        </div>
+        <div class="col-md-10">
+            <h1>MailEagle Newsletter-Application</h1>
+            <p>Import your CSV-files and send scheduled emails with customized HTML-content</p>
+        </div>
+    </div>
+
+    {% include 'user-data.html' %}
+</div>
+
+{% endblock %}
+
+job-information-card.html
+
+
+<div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#jobData" aria-expanded="true" aria-controls="jobData">
+          General Job Data
+        </button>
+      </h5>
+    </div>
+
+    <div id="jobData" class="collapse show" aria-labelledby="headingOne">
+      <div class="card-body">
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Job ID: </strong> {{ job.id }}</li>
+            <li class="list-group-item"><strong>Job Name: </strong> {{ job.name }}</li>
+            <li class="list-group-item"><strong>Subject: </strong> {{ job.subject }}</li>
+            <li class="list-group-item"><strong>Schedule Date: </strong> {{ job.schedule_date }}</li>
+            <li class="list-group-item"><strong>Is Scheduled: </strong> {{ job.is_scheduled }}</li>
+            <li class="list-group-item"><strong>Is Finished: </strong> {{ job.is_finished }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+job-stats.html
+
+
+<div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#jobStatistic" aria-expanded="true" aria-controls="jobStatistic">
+          Job Statistics
+        </button>
+      </h5>
+    </div>
+        <div id="jobStatistic" class="collapse show" aria-labelledby="headingOne">
+            <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-secondary">
+                        <div class="card-body">
+                            <h5 class="card-title">Total: </h5>
+                            <p class="card-text"><strong>{{ total_count }}</strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <h5 class="card-title">Success: </h5>
+                            <p class="card-text"><strong>{{ success_count }}</strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-danger">
+                        <div class="card-body">
+                            <h5 class="card-title">Failed: </h5>
+                            <p class="card-text"><strong>{{ failed_count }}</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+jobs-form.html
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+<div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#jobsForm" aria-expanded="true" aria-controls="jobsForm">
+          Jobs Form
+        </button>
+      </h5>
+    </div>
+
+    <div id="jobsForm" class="collapse show" aria-labelledby="headingOne">
+      <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {{ render_form(form) }}
+            </form>
+      </div>
+    </div>
+  </div>
+
+jobs-table.html
+
+
+{% from 'bootstrap5/table.html' import render_table %}
+
+<div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#jobsTable" aria-expanded="true" aria-controls="jobsTable">
+          Jobs Table
+        </button>
+      </h5>
+    </div>
+
+    <div id="jobsTable" class="collapse show" aria-labelledby="headingOne">
+      <div class="card-body">
+            {{
+            render_table(
+                    table_data,
+                    titles=table_data.titles,
+                    responsive=True,
+                    responsive_class='table-responsive-sm',
+                    show_actions=True,
+                    delete_url=('delete_job', [('job_id', ':id')]),
+                    custom_actions=[
+                    (
+                        'Schedule',
+                        'clipboard-plus',
+                        ('schedule_job', [('job_id', ':id')])
+                    ),
+                    (
+                        'Stop Scheduled Job',
+                        'clipboard-minus',
+                        ('stop_scheduled_job', [('job_id', ':id')])
+                    ),
+                    (
+                        'Open',
+                        'eye',
+                        ('open_job', [('job_id', ':id')])
+                    ),
+                ]
+                )
+            }}
+      </div>
+    </div>
+  </div>
+
+jobs.html
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Jobs</h1>
+<p>Configure and edit your email-lists you want to send via the newsletter</p>
+
+{% include 'jobs-form.html' %}
+
+{% include 'jobs-table.html' %}
+
+{% endblock %}
+logging.html
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .log-container {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 20px auto; /* Added margin for spacing */
+    }
+    .log-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-left: 4px solid transparent; /* Default border */
+    }
+    .log-item.error {
+        border-left-color: #f44336; /* Red border for errors */
+    }
+    .log-item.warning {
+        border-left-color: #ff9800; /* Orange border for warnings */
+    }
+    .log-item.info {
+        border-left-color: #2196F3; /* Blue border for info */
+    }
+    .log-item.debug {
+        border-left-color: #4CAF50; /* Green border for debug */
+    }
+    .log-item p {
+        margin: 5px 0;
+    }
+
+    /* Styling for the download button */
+    .download-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0d6efd; /* Bootstrap 5 blue background */
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 20px; /* Space between button and log items */
+        transition: background-color 0.3s;
+    }
+    .download-button:hover {
+        background-color: #0b5ed7; /* Darker Bootstrap 5 blue on hover */
+    }
+</style>
+
+<div class="log-container">
+    <a href="{{ url_for('download_logs') }}" class="download-button">Download All Logs</a>
+
+    {% for log in logs %}
+        <div class="log-item {% if log.log_level == 'ERROR' %}error{% elif log.log_level == 'WARNING' %}warning{% elif log.log_level == 'DEBUG' %}debug{% else %}info{% endif %}">
+            <p><strong>{{ log.log_level }}:</strong> {{ log.message }}</p>
+
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+login.html
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Bootstrap-Flask Demo Application</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    {{ bootstrap.load_css() }}
+    <style>
+        pre {
+            background: #ddd;
+            padding: 10px;
+        }
+        h2 {
+
+        }
+        footer {
+            margin: 20px;
+        }
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Adjust as needed */
+        }
+        .form-container {
+            max-width: 400px; /* Adjust as needed */
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="center-container">
+        <div class="form-container">
+            <h2 class="text-center m-2">Login</h2>
+             {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endif %}
+            <form method="POST">
+                {{ render_form(form) }}
+            </form>
+
+        </div>
+    </div>
+
+    {{ bootstrap.load_js() }}
+</body>
+</html>
+
+open-job.html
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Job Details</h1>
+<p>Get a detailed view of your selected job.</p>
+
+{% include 'job-stats.html' %}
+{% include 'job-information-card.html' %}
+{% include 'successful-emails-table.html' %}
+{% include 'failed-email-table.html' %}
+{% include 'all-emails-table.html' %}
+
+<a href="{{ url_for('jobs') }}" class="btn btn-primary">Back to Jobs</a>
+
+
+{% endblock %}
+successful-emails-table.html
+
+
+{% from 'bootstrap5/table.html' import render_table %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#successfulEmailsTable" aria-expanded="true" aria-controls="successfulEmailsTable">
+                Successful Emails
+            </button>
+        </h5>
+    </div>
+
+    <div id="successfulEmailsTable" class="collapse show" aria-labelledby="headingOne">
+        <div class="card-body">
+            {{
+            render_table(
+                successful_emails_data,
+                titles=successful_emails_data.titles,
+                responsive=True,
+                responsive_class='table-responsive-sm'
+            )
+            }}
+        </div>
+    </div>
+</div>
+
+unsubscribe.html
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Abbestellen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        p {
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <p>{{ message }}</p>
+</body>
+</html>
+
+unsubscribe_form.html
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Abbestellen</title>
+    <!-- Include Bootstrap CSS for styling -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Newsletter Abbestellen</h1>
+        <form method="POST" action="{{ url_for('abbestellen') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", size=32) }}
+                {% for error in form.email.errors %}
+                    <div class="text-danger">[{{ error }}]</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+
+user-data.html
+
+
+<!-- user_data.html -->
+<div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#userData" aria-expanded="true" aria-controls="userData">
+          User Data
+        </button>
+      </h5>
+    </div>
+
+    <div id="userData" class="collapse show" aria-labelledby="headingOne">
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item"><strong>Username: </strong> admin</li>
+          <li class="list-group-item"><strong>Password: </strong> password</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+C:\Users\Michi\Desktop\hider\__Projekte\sms-eagle\templates>
