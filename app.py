@@ -43,10 +43,11 @@ login_manager = LoginManager(app)
 bootstrap = Bootstrap5(app)
 
 csrf = CSRFProtect(app)
-#logging.getLogger('werkzeug').disabled = False
+logging.getLogger('werkzeug').disabled = True
 
-##logger = logging.get#logger(__name__)
-#logging.basicConfig(filename='sms-eagle.log', encoding='utf-8', level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(filename='sms-eagle.log', encoding='utf-8', level=logging.DEBUG)
 
 
 class TaskManager:
@@ -71,7 +72,7 @@ class TaskManager:
         event = self.scheduler.enter(delay, priority, self.run_task, (name, action, argument))
         self.tasks[name] = {'event': event, 'action': action, 'argument': argument}
         self.lock.release()
-        #logger.info(f"Task '{name}' added with delay {delay}s and priority {priority}.")
+        logger.info(f"Task '{name}' added with delay {delay}s and priority {priority}.")
 
     def remove_task(self, name):
         self.lock.acquire()
@@ -79,10 +80,10 @@ class TaskManager:
             event = self.tasks[name]['event']
             self.scheduler.cancel(event)
             del self.tasks[name]
-            #logger.info(f"Task '{name}' removed.")
+            logger.info(f"Task '{name}' removed.")
         else:
             print()
-            #logger.info(f"Task '{name}' removed.")
+            logger.info(f"Task '{name}' removed.")
         self.lock.release()
 
     def list_tasks(self):
@@ -93,9 +94,9 @@ class TaskManager:
 
     def run_task(self, name, action, argument):
         def task_wrapper():
-            #logger.info(f"Task '{name}' started.")
+            logger.info(f"Task '{name}' started.")
             action(*argument)
-            #logger.info(f"Task '{name}' finished.")
+            logger.info(f"Task '{name}' finished.")
             job = get_job_by_uuid(name)
             job['is_finished'] = True
 
@@ -158,9 +159,9 @@ class LoginForm(FlaskForm):
 
 
 class SenderSMSCredentials(FlaskForm):
-    account_sid = StringField('Account-SSID', validators=[DataRequired()])
-    auth_token = StringField('AUTH-TOKEN', validators=[DataRequired()])
-    from_number = StringField('Sender-PHONE-NUMBER', validators=[DataRequired()])
+    target_device_iden = StringField('TARGET-DEVICE-IDENTIFICATION', validators=[DataRequired()])
+    access_token = StringField('ACCESS-TOKEN', validators=[DataRequired()])
+    from_number = StringField('SENDER-PHONE-NUMBER', validators=[DataRequired()])
 
     submit = SubmitField()
 
@@ -177,7 +178,7 @@ class BlacklistCSVForm(FlaskForm):
 
 
 class UnsubscribeForm(FlaskForm):
-    email = EmailField('Email', validators=[DataRequired()])
+    email = StringField('Phone-Number', validators=[DataRequired()])
     submit = SubmitField('Unsubscribe')
 
 
@@ -192,7 +193,7 @@ def login():
         if user.username == login_form.username.data and compare_digest(user.password, login_form.password.data):
             login_user(user)
 
-            #logger.info(f"Login attempt successful.")
+            logger.info(f"Login attempt successful.")
             flash('Successfully logged in!')
             return redirect(url_for('index'))
         else:
@@ -259,7 +260,7 @@ def blacklist_text_entry():
 
         update_blacklist(entry)
 
-        #logger.info(f'Received blacklist entry: {entry}')
+        logger.info(f'Received blacklist entry: {entry}')
         flash("Successfully added blacklist entry!", 'success')
     return redirect(url_for('blacklist'))
 
@@ -281,16 +282,16 @@ def blacklist_csv_upload():
                 for row in reader:
                     update_blacklist(row[column])
 
-            #logger.info(f'Successfully processed blacklist-CSV file!')
+            logger.info(f'Successfully processed blacklist-CSV file!')
             flash("Successfully processed CSV file!", 'success')
         except Exception as e:
             flash(f"An error occurred: {str(e)}", 'danger')
-            #logger.error(f'An error occurred: {str(e)}')
+            logger.error(f'An error occurred: {str(e)}')
         finally:
             if os.path.exists(filepath):
                 os.remove(filepath)
     else:
-        #logger.error(f'Failed to upload CSV file. Please ensure the form is filled out correctly.')
+        logger.error(f'Failed to upload CSV file. Please ensure the form is filled out correctly.')
         flash("Failed to upload CSV file. Please ensure the form is filled out correctly.", 'danger')
 
     return redirect(url_for('blacklist'))
@@ -303,22 +304,22 @@ def configure():
     if request.method == 'POST' and form.validate_on_submit():
 
         # Process form data
-        account_sid = form.account_sid.data
-        auth_token = form.auth_token.data
+        target_device_iden = form.target_device_iden.data
+        access_token = form.access_token.data
         from_number = form.from_number.data
 
-        store['sms_sender.account_sid'] = account_sid
-        store['sms_sender.auth_token'] = auth_token
+        store['sms_sender.target_device_iden'] = target_device_iden
+        store['sms_sender.access_token'] = access_token
         store['sms_sender.from_number'] = from_number
 
         flash('SMS sender configuration saved successfully!', 'success')
-        #logger.info(f'SMS sender configuration saved successfully!')
+        logger.info(f'SMS sender configuration saved successfully!')
 
         return redirect(url_for('configure'))
 
     # Load existing data if available
-    form.account_sid.data = store['sms_sender.account_sid']
-    form.auth_token.data = store['sms_sender.auth_token']
+    form.target_device_iden.data = store['sms_sender.target_device_iden']
+    form.access_token.data = store['sms_sender.access_token']
     form.from_number.data = store['sms_sender.from_number']
 
     return render_template('configure.html', form=form, sms_sender=store['sms_sender'])
@@ -348,11 +349,12 @@ def parse_csv_column(csv_file_path, column_name):
                 column_index = header.index(column_name)
                 for row in csv_reader:
                     if 0 <= column_index < len(row):
-                        column_data.append(row[column_index])
+                        cleaned_entry = row[column_index].strip().replace(" ", "")
+                        column_data.append(cleaned_entry)
                     else:
                         raise IndexError(f"Column index {column_index} out of range.")
             else:
-                #logger.error(f"Column '{column_name}' not found in CSV file header.")
+                logger.error(f"Column '{column_name}' not found in CSV file header.")
                 raise ValueError(f"Column '{column_name}' not found in CSV file header.")
 
         return column_data
@@ -433,11 +435,11 @@ def jobs():
             print(store['jobs'])
 
             flash("Successfully created job!", 'success')
-            #logger.info(f"Successfully created job[{form.name.data}]!")
+            logger.info(f"Successfully created job[{form.name.data}]!")
             return redirect(url_for('jobs'))
         except Exception as e:
             flash(f"An error occurred: {e}", 'error')
-            #logger.error(f"An error occurred: {e} while creating job!")
+            logger.error(f"An error occurred: {e} while creating job!")
 
     jobs_data = [
         {
@@ -485,6 +487,7 @@ def open_job(job_id):
 
         successful_phone_numbers = [{'id': idx + 1, 'phone_number': phone_number} for idx, phone_number in enumerate(job['successful_sms'])]
         failed_phone_numbers = [{'id': idx + 1, 'phone_number': phone_number} for idx, phone_number in enumerate(job['failed_sms'])]
+
         phone_numbers = [{'id': idx + 1, 'phone_number': phone_number} for idx, phone_number in enumerate(job['list'])]
 
         titles = [
@@ -496,27 +499,31 @@ def open_job(job_id):
         failed_phone_numbers_data = TableData(failed_phone_numbers, titles)
         phone_numbers_data = TableData(phone_numbers, titles)
 
+        failed_count = len(failed_phone_numbers)
+        success_count = len(successful_phone_numbers)
+        total_count = len(job['list'])
+
         return render_template('open-job.html', job=job,
                                successful_phone_numbers_data=successful_phone_numbers_data,
                                failed_phone_numbers_data=failed_phone_numbers_data,
                                phone_numbers_data=phone_numbers_data,
-                               failed_count=len(failed_phone_numbers) if failed_phone_numbers else 0,
-                               success_count=len(successful_phone_numbers) if successful_phone_numbers else 0,
-                               total_count=len(job['list']) if job['list'] else 0
+                               failed_count=failed_count,
+                               success_count=success_count,
+                               total_count=total_count
                                )
     else:
         flash(f"Job[{job_id}] not found!", 'error')
-        #logger.error(f"Job[{job_id}] not found!")
+        logger.error(f"Job[{job_id}] not found!")
         return redirect(url_for('jobs'))
 
 
 def unsubscribe_email(email_dict, email_id):
     if email_id in email_dict:
-        #logger.info(f"{email_dict[email_id]} successfully unsubscribed!")
+        logger.info(f"{email_dict[email_id]} successfully unsubscribed!")
         del email_dict[email_id]
     else:
         print(f"Email ID {email_id} not found.")
-        #logger.error(f"Email ID {email_id} not found.")
+        logger.error(f"Email ID {email_id} not found.")
 
 
 def reload_store():
@@ -559,10 +566,10 @@ def delete_job(job_id):
         manager.remove_task(job['job_uuid'])
 
         flash(f"Job[{job_id}] successfully deleted!", 'success')
-        #logger.info(f"Job[{job_id}] successfully deleted!")
+        logger.info(f"Job[{job_id}] successfully deleted!")
     else:
         flash(f"Job[{job_id}] not found!", 'error')
-        #logger.error(f"Job[{job_id}] not found")
+        logger.error(f"Job[{job_id}] not found")
 
     return redirect(url_for('jobs'))
 
@@ -575,7 +582,7 @@ def schedule_job(job_id):
         if job['id'] == job_id:
             if job['is_scheduled']:
                 flash(f"Job[{job_id}] is already scheduled!", 'warning')
-                #logger.warning(f"Job[{job_id}] is already scheduled!")
+                logger.warning(f"Job[{job_id}] is already scheduled!")
             else:
                 try:
                     delay = ((datetime
@@ -585,12 +592,11 @@ def schedule_job(job_id):
 
                     if delay <= 0:
                         flash(f"Job[{job_id}] cannot be scheduled in the past!", 'danger')
-                        #logger.warning(f"Job[{job_id}] cannot be scheduled in the past!")
+                        logger.warning(f"Job[{job_id}] cannot be scheduled in the past!")
                     else:
                         sms_args = {
-                            'account_sid': store['sms_sender.account_sid'],
-                            'auth_token': store['sms_sender.auth_token'],
-                            'from_number': store['sms_sender.from_number'],
+                            'target_device_iden': store['sms_sender.target_device_iden'],
+                            'access_token': store['sms_sender.access_token'],
                             'phone_numbers': job['list'],
                             'job_id': job['id'],
                             'message': job['message'],
@@ -601,7 +607,7 @@ def schedule_job(job_id):
                         job['is_scheduled'] = True
                         store['jobs'] = jobs_temp
                         flash(f"Job[{job_id}] successfully scheduled!", 'success')
-                        #logger.info(f"Job[{job_id}] successfully scheduled!")
+                        logger.info(f"Job[{job_id}] successfully scheduled!")
                 except Exception as e:
                     print(e)
                     flash(message=str(e), category='danger')
@@ -618,14 +624,14 @@ def stop_scheduled_job(job_id):
         if job['id'] == job_id:
             if job['is_scheduled'] is False:
                 flash(f"Job[{job_id}] is not scheduled!", 'warning')
-                #logger.warning(f"Job[{job_id}] is not scheduled!")
+                logger.warning(f"Job[{job_id}] is not scheduled!")
             else:
                 manager.remove_task(job['job_uuid'])
 
                 job['is_scheduled'] = False
                 store['jobs'] = jobs_temp
                 flash(f"Successfully stopped scheduling of Job[{job['id']}].", 'success')
-                #logger.info(f"Successfully stopped scheduling of Job[{job['id']}].")
+                logger.info(f"Successfully stopped scheduling of Job[{job['id']}].")
             break
 
     return redirect(url_for('jobs'))
@@ -639,6 +645,7 @@ def abbestellen():
         email = unquote(email_address)
         email = email.strip()
         email = email.lower()
+        email = email.replace(" ", "")
         unsubscribed = True
 
         update_blacklist(email)
@@ -664,6 +671,8 @@ def unsubscribe(phone_number):
     phone_number = unquote(phone_number)
     phone_number = phone_number.strip()
     phone_number = phone_number.lower()
+    phone_number = phone_number.replace(" ", "")
+
     unsubscribed = True
     update_blacklist(phone_number)
 

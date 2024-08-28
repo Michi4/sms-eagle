@@ -2,7 +2,9 @@ import csv
 import time
 import json
 import sys
-from twilio.rest import Client
+import uuid
+
+import requests
 
 
 def load_config():
@@ -18,38 +20,56 @@ def get_job_by_id(job_id):
     return None
 
 
-def update_config(job_id, successful_numbers, failed_numbers):
+def update_config(job_id, is_successful, successful_sms, error_message=""):
     with open('config.json', 'r') as file:
         config = json.load(file)
 
     for job in config['jobs']:
-        if job['id'] == job_id:
-            job['successful_numbers'] = list(set(job.get('successful_numbers', []) + successful_numbers))
-            job['failed_numbers'] = list(set(failed_numbers))
+        if job['id'] == job_id and is_successful:
+            job['is_finished'] = True
+            job['is_scheduled'] = False
+            job['successful_sms'] = successful_sms
+            job['failed_sms'] = []
             break
+        elif not is_successful:
+            job['is_finished'] = True
+            job['is_scheduled'] = False
+            job['failed_sms'] = successful_sms
+            job['error_message'] = error_message
 
     with open('config.json', 'w') as file:
         json.dump(config, file, indent=4)
 
 
-def send_bulk_sms(account_sid, auth_token, from_number, message, phone_numbers, job_id, timeout_seconds=2):
-    client = Client(account_sid, auth_token)
-    successful_numbers = []
-    failed_numbers = []
+def send_bulk_sms(target_device_iden, access_token, phone_numbers, message, job_id):
+    headers = {
+        'Access-Token': access_token,
+        'Content-Type': 'application/json'
+    }
 
-    for num in phone_numbers:
-        try:
-            print(f"Sending to {num}")
-            client.messages.create(to=num, from_=from_number, body=message)
-            successful_numbers.append(num)
-        except Exception as e:
-            print(f"Failed to send SMS to {num}: {e}")
-            failed_numbers.append(num)
-        finally:
-            time.sleep(timeout_seconds)  # Rate limiting
+    data_payload = {
+        "data": {
+            "addresses": phone_numbers,
+            "file_type": "text/plain",
+            "guid": str(uuid.uuid4()),
+            "message": message,
+            "target_device_iden": target_device_iden
+        },
+    }
 
-    # Update config with the results
-    update_config(job_id, successful_numbers, failed_numbers)
+    response = requests.post(
+        url='https://api.pushbullet.com/v2/texts',
+        headers=headers,
+        json=data_payload
+    )
+    response_data = response.json()
+    if response.status_code == 200:
+        if response_data.get('active') and response_data.get('iden'):
+            print("Message sent successfully!")
+            update_config(job_id, True, phone_numbers)
+    else:
+        print("Failed to confirm message sending:", response_data)
+        update_config(job_id, False, phone_numbers, response_data.get('error_code'))
 
 
 def main(job_id):

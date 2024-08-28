@@ -37,15 +37,15 @@
     .download-button {
         display: inline-block;
         padding: 10px 20px;
-        background-color: #0d6efd; /* Bootstrap 5 blue background */
+        background-color: #0d6efd;
         color: white;
         text-decoration: none;
         border-radius: 5px;
-        margin-bottom: 20px; /* Space between button and log items */
+        margin-bottom: 20px;
         transition: background-color 0.3s;
     }
     .download-button:hover {
-        background-color: #0b5ed7; /* Darker Bootstrap 5 blue on hover */
+        background-color: #0b5ed7;
     }
 </style>
 
@@ -54,7 +54,7 @@
 
     {% for log in logs %}
         <div class="log-item {% if log.log_level == 'ERROR' %}error{% elif log.log_level == 'WARNING' %}warning{% elif log.log_level == 'DEBUG' %}debug{% else %}info{% endif %}">
-            <p><strong>{{ log.log_level }}:</strong> {{ log.message }}</p>
+            <p style="color:black;"><strong>{{ log.log_level }}:</strong> {{ log.message }}</p>
 
         </div>
     {% endfor %}

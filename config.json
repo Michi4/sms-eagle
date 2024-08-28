@@ -1,69 +1,9 @@
 {
   "sms_sender": {
-    "account_sid": "sdafsdaf",
-    "auth_token": "sadfsadfsadfasfsafh_token",
-    "from_number": "+123456789023423"
+    "target_device_iden": "",
+    "access_token": "",
+    "from_number": ""
   },
   "jobs": [
-    {
-      "id": 1,
-      "job_uuid": "ac06167d-2292-4f37-9530-8099d21c9d45",
-      "name": "Hallo Welt",
-      "is_scheduled": false,
-      "is_finished": false,
-      "csv_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/fdb6eb54-394c-46ac-9e0c-2c10754a7ca3.csv",
-      "schedule_date": "08/21/2024 19:00:00",
-      "message_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/fe736dcd-22b2-498f-a58f-ca5e1214db94.txt",
-      "list": [],
-      "message": "",
-      "successful_sms": [],
-      "failed_sms": []
-    },
-    {
-      "id": 2,
-      "job_uuid": "6578ab56-2336-4cbd-9119-77350fb60b2c",
-      "name": "fasfsadf",
-      "is_scheduled": false,
-      "is_finished": false,
-      "csv_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/43e30f6c-bf4e-4c3a-9643-158db5e72d27.csv",
-      "schedule_date": "08/21/2024 20:02:00",
-      "message_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/d5c077fb-da22-462f-a4d7-c8e5c551d794.txt",
-      "list": [],
-      "message": "hfdkljhfkjlasfkjladshfdsa+fsajdfksdhafdhsakfljhasf\nsdafhadskjhfakdsjfhsda\nfsdajfhksdahkfjsdaf\nsdfhsdakjhfkjsdaf\nsfjdsakflhsa",
-      "successful_sms": [],
-      "failed_sms": []
-    },
-    {
-      "id": 3,
-      "job_uuid": "aac5c8cb-2420-410a-bc93-151ec6c934c6",
-      "name": "Hallo Welt",
-      "is_scheduled": false,
-      "is_finished": false,
-      "csv_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/aeb303e4-3551-4b30-b676-203b708ce0b8.csv",
-      "schedule_date": "08/21/2024 20:03:00",
-      "message_path": "/Users/stevanvlajic/Desktop/sms-eagle/uploads/a4626ac6-fd8d-464d-8861-4fb4ff3480d7.txt",
-      "list": [
-        "24dfa",
-        "234fdsafdsa",
-        "21sdafasd",
-        "42faasdfsa",
-        "4231asdf",
-        "4231fasdf",
-        "4fasfdsa",
-        "124sdafsadf",
-        "21fasdfasdf",
-        "42afsasfsadfsaasdfasd",
-        "124sdafsadfsa",
-        "21afasfas",
-        "4fsafasdfsad",
-        "214fasf",
-        "21fasdsa",
-        "4asfasfas",
-        "213asdfasd"
-      ],
-      "message": "hfdkljhfkjlasfkjladshfdsa+fsajdfksdhafdhsakfljhasf\nsdafhadskjhfakdsjfhsda\nfsdajfhksdahkfjsdaf\nsdfhsdakjhfkjsdaf\nsfjdsakflhsa",
-      "successful_sms": [],
-      "failed_sms": []
-    }
   ]
 }
