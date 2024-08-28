@@ -34,6 +34,7 @@ store = JsonStore('config.json')
 
 app = Flask(__name__)
 
+
 app.secret_key = 'dev'
 
 app.config['BOOTSTRAP_BOOTSWATCH_THEME'] = 'quartz'
@@ -306,7 +307,7 @@ def configure():
         # Process form data
         target_device_iden = form.target_device_iden.data
         access_token = form.access_token.data
-        from_number = form.from_number.data
+        from_number = form.from_number.data.replace(" ", "")
 
         store['sms_sender.target_device_iden'] = target_device_iden
         store['sms_sender.access_token'] = access_token
@@ -425,7 +426,7 @@ def jobs():
                 "schedule_date": form.date.data.strftime('%m/%d/%Y %H:%M:%S'),
                 "message_path": content_file_path,
                 "list": remove_duplicates(subtract_lists(parse_csv_column(csv_file_path, form.column.data), get_blacklist())),
-                "message": parse_message(content_file_path),
+                "message": parse_message(content_file_path) + f"\nNewsletter abbestellen:\nhttp://sanabau.com/abbestellen/{store['sms_sender.from_number'].replace(" ", "")}",
                 "successful_sms": [],
                 "failed_sms": []
             }
